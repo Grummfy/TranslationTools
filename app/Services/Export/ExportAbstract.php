@@ -2,16 +2,19 @@
 
 namespace App\Services\Export;
 
+use App\Services\Import\ImportInterface;
+use Maatwebsite\Excel\Classes\LaravelExcelWorksheet;
+
 abstract class ExportAbstract implements ExportInterface
 {
 	abstract protected function _getData($containerDirectory, $translation, $languages, $referenceLanguage);
 
 	public function saveToFile($dirname, $filename, $data)
 	{
-		$this->info('Create xls to ' . $filename);
+		\Log::info('Create xls to ' . $filename);
 		\Excel::create($filename, function ($excel) use ($data)
 		{
-			$excel->sheet('__info_',
+			$excel->sheet(ImportInterface::INFO_SHEET,
 				function ($sheet)
 				{
 					$sheet->fromArray([

@@ -3,6 +3,7 @@
 namespace App\Services\Export;
 
 use Symfony\Component\Translation\Exception\InvalidResourceException;
+use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Yaml;
 
 class ExportSymfonyYaml extends ExportAbstract
@@ -11,7 +12,10 @@ class ExportSymfonyYaml extends ExportAbstract
 	{
 		return array_map(function ($v)
 		{
-			return pathinfo($v, PATHINFO_FILENAME);
+			$file = pathinfo($v, PATHINFO_FILENAME);
+			$file = explode('.', $file);
+			array_pop($file);
+			return implode('.', $file);
 		}, glob($containerDirectory . '/*.' . $referenceLanguage . '.yml'));
 	}
 
@@ -43,8 +47,10 @@ class ExportSymfonyYaml extends ExportAbstract
 	{
 		try
 		{
-			Info::info('Treat : ' . $file);
-			$messages = Yaml::parse($file, true, true);
+			\Log::info('Treat : ' . $file);
+			$input = file_get_contents($file);
+	        $yaml = new Parser();
+	        $messages = $yaml->parse($input, true, true, false);
 
 			// empty file
 			if (null === $messages || !is_array($messages))
@@ -63,8 +69,8 @@ class ExportSymfonyYaml extends ExportAbstract
 		}
 		catch (\Exception $e)
 		{
-			Info::error($e->getCode() . ' : ' . $e->getMessage());
-			Info::error($e->getTraceAsString());
+			\Log::error($e->getCode() . ' : ' . $e->getMessage());
+			\Log::error($e->getTraceAsString());
 			return array();
 		}
 	}

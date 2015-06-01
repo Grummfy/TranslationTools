@@ -1,6 +1,7 @@
 <?php namespace App\Console\Commands;
 
 use App\Services\Export\ExportLaravel;
+use App\Services\Export\ExportSymfonyYaml;
 use Illuminate\Console\Command;
 use Maatwebsite\Excel\Classes\LaravelExcelWorksheet;
 use Symfony\Component\Console\Input\InputOption;
@@ -44,6 +45,9 @@ class ExportTranslation extends Command
 			default:
 			case 'laravel':
 				$exporter = new ExportLaravel();
+				break;
+			case 'sf_yml':
+				$exporter = new ExportSymfonyYaml();
 				break;
 		}
 

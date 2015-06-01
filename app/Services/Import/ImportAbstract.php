@@ -42,16 +42,16 @@ abstract class ImportAbstract implements ImportInterface
 				continue;
 			}
 
-			Log::info('Translation import: processing ' . $local);
+			\Log::info('Translation import: processing ' . $local);
 
 			$export = $this->processSheet($sheet, $languages);
 			$this->exportSheetsToDestination($dir, $export, $local);
 
-			Log::info('Translation import: done');
+			\Log::info('Translation import: done');
 			$i++;
 		}
 
-		Log::info($i . 'translation(s) type processed');
+		\Log::info($i . 'translation(s) type processed');
 	}
 
 	public function processSheet($sheet, $languages)
