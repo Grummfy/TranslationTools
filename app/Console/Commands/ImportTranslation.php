@@ -46,6 +46,9 @@ class ImportTranslation extends Command
 			case 'laravel':
 				$importer = new ImportLaravel();
 				break;
+			case 'sf_yml':
+				$importer = new ImportSymfonYaml();
+				break;
 		}
 		$importer->loadFile($file, $out, $langs, $locals);
 	}
