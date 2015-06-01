@@ -1,5 +1,6 @@
 <?php namespace App\Console\Commands;
 
+use App\Services\Export\ExportLaravel;
 use Illuminate\Console\Command;
 use Maatwebsite\Excel\Classes\LaravelExcelWorksheet;
 use Symfony\Component\Console\Input\InputOption;
@@ -19,7 +20,7 @@ class ExportTranslation extends Command
 	{
 		$dir = rtrim($this->option('dir'), '/');
 		$out = $this->option('out');
-		$locals = $this->option('local');
+		$translations = $this->option('local');
 		$langs = $this->option('lang');
 		$ref = $this->option('ref');
 		$type = $this->option('type');
@@ -38,48 +39,25 @@ class ExportTranslation extends Command
 			return 1;
 		}
 
-		if (empty($locals)) // if no local given we get all the locals of the reference.
+		switch ($type)
 		{
-			$locals = array_map(function ($v)
-			{
-				return pathinfo($v, PATHINFO_FILENAME);
-			}, glob($dir . '/' . $ref . '/*'));
+			default:
+			case 'laravel':
+				$exporter = new ExportLaravel();
+				break;
 		}
 
-		$data = [];
-
-		foreach ($locals as $local)
+		if (empty($translations)) // if no local given we get all the locals of the reference.
 		{
-			$data[ $local ] = $this->_getData($dir, $local, $langs, $ref);
+			$translations = $exporter->getTranslations($dir, $ref);
 		}
 
-		$this->info('Create xls to ' . pathinfo($out, PATHINFO_BASENAME));
+		$data = $exporter->loadDatas($translations, $langs, $dir, $ref);
 
-		\Excel::create(pathinfo($out, PATHINFO_BASENAME), function ($excel) use ($data)
-		{
+		$filename = pathinfo($out, PATHINFO_BASENAME);
+		$dirname = pathinfo($out, PATHINFO_DIRNAME);
 
-			$excel->sheet('__info_',
-				function ($sheet)
-				{
-					$sheet->fromArray([
-						[
-							'Don\'t touch key and ref column'
-						]
-					],
-					null,
-					'A1',
-					false);
-				});
-
-			foreach ($data as $name => $local)
-			{
-				$excel->sheet($name,
-					function (LaravelExcelWorksheet $sheet) use ($local)
-					{
-						$sheet->fromArray($local);
-					});
-			}
-		})->store('xls', pathinfo($out, PATHINFO_DIRNAME));
+		$exporter->saveToFile($dirname, $filename, $data);
 	}
 
 	protected function getOptions()
@@ -92,57 +70,5 @@ class ExportTranslation extends Command
 			['ref', null, InputOption::VALUE_REQUIRED, 'The lang to use as reference', 'ref'],
 			['type', 't', InputOption::VALUE_REQUIRED, 'The type of import: laravel, sf_yml'],
 		];
-	}
-
-	protected function _getData($dir, $local, $langs, $ref)
-	{
-		$data = [];
-
-		foreach ($this->_include($dir, $ref, $local) as $k => $v)
-		{
-			$data[ $k ] = $this->_emptyLine($k, $v, $langs);
-		}
-
-		foreach ($langs as $lang)
-		{
-			foreach ($this->_include($dir, $lang, $local) as $k => $v)
-			{
-				if (!isset($data[ $k ]))
-				{
-					$data[ $k ] = $this->_emptyLine($k, 'N/A', $langs);
-				}
-
-				$data[ $k ][ $lang ] = $v;
-			}
-		}
-
-		return $data;
-	}
-
-	protected function _include($dir, $lang, $local)
-	{
-		try
-		{
-			return array_dot(include $dir . '/' . $lang . '/' . $local . '.php');
-		}
-		catch (\Exception $e)
-		{
-			return [];
-		}
-	}
-
-	protected function _emptyLine($key, $ref, $langs)
-	{
-		$t = [
-			'key' => $key,
-			'ref' => $ref,
-		];
-
-		foreach ($langs as $lang)
-		{
-			$t[ $lang ] = null;
-		}
-
-		return $t;
 	}
 }
