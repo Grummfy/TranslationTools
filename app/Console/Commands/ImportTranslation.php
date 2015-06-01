@@ -6,7 +6,7 @@ use Symfony\Component\Console\Input\InputOption;
 
 class ImportTranslation extends Command
 {
-	protected $name = 'bepark:translation:import';
+	protected $name = 'translation:import';
 
 	protected $description = 'Import the translation from an excel to php files';
 

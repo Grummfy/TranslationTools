@@ -6,7 +6,7 @@ use Symfony\Component\Console\Input\InputOption;
 
 class ExportTranslation extends Command
 {
-	protected $name = 'bepark:translation:export';
+	protected $name = 'translation:export';
 
 	protected $description = 'Export the translation to an excel';
 
