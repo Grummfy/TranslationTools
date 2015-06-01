@@ -22,6 +22,7 @@ class ExportTranslation extends Command
 		$locals = $this->option('local');
 		$langs = $this->option('lang');
 		$ref = $this->option('ref');
+		$type = $this->option('type');
 
 		if ($dir == null)
 		{
@@ -65,10 +66,9 @@ class ExportTranslation extends Command
 							'Don\'t touch key and ref column'
 						]
 					],
-						null,
-						'A1',
-						false,
-						false);
+					null,
+					'A1',
+					false);
 				});
 
 			foreach ($data as $name => $local)
@@ -84,13 +84,14 @@ class ExportTranslation extends Command
 
 	protected function getOptions()
 	{
-		return array(
-			array('dir', 'd', InputOption::VALUE_REQUIRED, 'the path to the directory to analyse'),
-			array('local', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The translations file to use (if not present, all)'),
-			array('lang', 'l', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The languages to analyse'),
-			array('out', 'o', InputOption::VALUE_REQUIRED, 'The output file name (without extention)', 'local'),
-			array('ref', null, InputOption::VALUE_REQUIRED, 'The lang to use as reference', 'ref'),
-		);
+		return [
+			['dir', 'd', InputOption::VALUE_REQUIRED, 'the path to the directory to analyse'],
+			['local', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The translations file to use (if not present, all)'],
+			['lang', 'l', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The languages to analyse'],
+			['out', 'o', InputOption::VALUE_REQUIRED, 'The output file name (without extention)', 'local'],
+			['ref', null, InputOption::VALUE_REQUIRED, 'The lang to use as reference', 'ref'],
+			['type', 't', InputOption::VALUE_REQUIRED, 'The type of import: laravel, sf_yml'],
+		];
 	}
 
 	protected function _getData($dir, $local, $langs, $ref)

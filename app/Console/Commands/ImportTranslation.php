@@ -1,5 +1,6 @@
 <?php namespace App\Console\Commands;
 
+use App\Services\Import\ImportLaravel;
 use Illuminate\Console\Command;
 use Maatwebsite\Excel\Collections\SheetCollection;
 use Symfony\Component\Console\Input\InputOption;
@@ -16,6 +17,7 @@ class ImportTranslation extends Command
 		$out = rtrim($this->option('out'), '/');
 		$locals = $this->option('local');
 		$langs = $this->option('lang');
+		$type = $this->option('type');
 
 		if ($file == null)
 		{
@@ -38,65 +40,14 @@ class ImportTranslation extends Command
 			return 1;
 		}
 
-		if (empty($locals))
+		switch ($type)
 		{
-			/* @var $data \Maatwebsite\Excel\Readers\LaravelExcelReader */
-			$data = \Excel::load($file);
-
-			// XXX avoid range error like [PHPExcel_Exception] Row 2 is out of range (2 - 1)
-			$sheetNumber = $data->getExcel()->getSheetCount();
-			$data->setSelectedSheetIndices(range(1, $sheetNumber));
-
-			$data = $data->get();
+			default:
+			case 'laravel':
+				$importer = new ImportLaravel();
+				break;
 		}
-		else
-		{
-			$data = \Excel::selectSheets($locals)->load($file)->get();
-		}
-
-		if ($data instanceof SheetCollection)
-		{
-			$t = [];
-			foreach ($data as $sheet)
-			{
-				$t[ $sheet->getTitle() ] = $sheet->toArray();
-			}
-			$data = $t;
-		}
-		else
-		{
-			$data = [$data->getTitle() => $data->toArray()];
-		}
-
-		$i = 0;
-		foreach ($data as $local => $sheet)
-		{
-			if ($local == '__info_')
-			{
-				continue;
-			}
-
-			$this->output->write('processing ' . $local);
-
-			$export = [];
-			foreach ($sheet as $row)
-			{
-				foreach ($langs as $lang)
-				{
-					$export[ $lang ][ $row[ 'key' ] ] = $row[ $lang ];
-				}
-			}
-
-			foreach ($export as $lang => $e)
-			{
-				// export it
-				$this->_export($out, $lang, $local, $e);
-			}
-			$this->info(' Done');
-			$i++;
-		}
-
-		$this->info($i . ' local(s) processed');
+		$importer->loadFile($file, $out, $langs, $locals);
 	}
 
 	protected function getOptions()
@@ -106,23 +57,7 @@ class ImportTranslation extends Command
 			['local', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The translations to import (if not present, all)'],
 			['lang', 'l', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The languages to import'],
 			['out', 'o', InputOption::VALUE_REQUIRED, 'The output directory name'],
+			['type', 't', InputOption::VALUE_REQUIRED, 'The type of import: laravel, sf_yml', 'laravel'],
 		];
-	}
-
-	protected function _export($dir, $lang, $local, $data)
-	{
-		// assure order of key => easier to compare on diff
-		ksort($data);
-
-		$path = $dir . '/' . $lang . '/' . $local . '.php';
-		@mkdir(pathinfo($path, PATHINFO_DIRNAME));
-
-		$array = array();
-		foreach ($data as $key => $value)
-		{ // convert dot notation in real array
-			array_set($array, $key, $value);
-		}
-
-		file_put_contents($path, '<?php' . PHP_EOL . PHP_EOL . 'return ' . var_export($array, true) . ';' . PHP_EOL);
 	}
 }
