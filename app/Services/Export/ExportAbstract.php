@@ -4,7 +4,7 @@ namespace App\Services\Export;
 
 abstract class ExportAbstract implements ExportInterface
 {
-	abstract protected function _getData($containerDirectory, $translation, $langs, $referenceLanguage);
+	abstract protected function _getData($containerDirectory, $translation, $languages, $referenceLanguage);
 
 	public function saveToFile($dirname, $filename, $data)
 	{

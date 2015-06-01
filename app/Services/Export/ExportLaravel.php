@@ -12,22 +12,22 @@ class ExportLaravel extends ExportAbstract
 		}, glob($containerDirectory . '/' . $referenceLanguage . '/*.php'));
 	}
 
-	protected function _getData($containerDirectory, $translation, $langs, $referenceLanguage)
+	protected function _getData($containerDirectory, $translation, $languages, $referenceLanguage)
 	{
 		$data = [];
 
 		foreach ($this->_include($containerDirectory, $referenceLanguage, $translation) as $k => $v)
 		{
-			$data[ $k ] = $this->_emptyLine($k, $v, $langs);
+			$data[ $k ] = $this->_emptyLine($k, $v, $languages);
 		}
 
-		foreach ($langs as $lang)
+		foreach ($languages as $lang)
 		{
 			foreach ($this->_include($containerDirectory, $lang, $translation) as $k => $v)
 			{
 				if (!isset($data[ $k ]))
 				{
-					$data[ $k ] = $this->_emptyLine($k, 'N/A', $langs);
+					$data[ $k ] = $this->_emptyLine($k, 'N/A', $languages);
 				}
 
 				$data[ $k ][ $lang ] = $v;
