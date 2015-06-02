@@ -1,6 +1,7 @@
 <?php namespace App\Console\Commands;
 
 use App\Services\Import\ImportLaravel;
+use App\Services\Import\ImportSymfonyYaml;
 use Illuminate\Console\Command;
 use Maatwebsite\Excel\Collections\SheetCollection;
 use Symfony\Component\Console\Input\InputOption;
@@ -47,7 +48,7 @@ class ImportTranslation extends Command
 				$importer = new ImportLaravel();
 				break;
 			case 'sf_yml':
-				$importer = new ImportSymfonYaml();
+				$importer = new ImportSymfonyYaml();
 				break;
 		}
 		$importer->loadFile($file, $out, $langs, $locals);

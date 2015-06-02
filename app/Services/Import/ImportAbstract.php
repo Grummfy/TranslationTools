@@ -26,17 +26,23 @@ abstract class ImportAbstract implements ImportInterface
 			if ($data instanceof SheetCollection)
 			{
 				$t = [];
-				foreach ($data as $sheet)
+				foreach ($data as $rowCollection)
 				{
-					$t[ $sheet->getTitle() ] = $sheet->toArray();
+					$t[ $rowCollection->getTitle() ] = $rowCollection->toArray();
 				}
 				$data = $t;
 			}
 		}
 
 		$i = 0;
-		foreach ($data as $local => $sheet)
+		/* @var $rowCollection \Maatwebsite\Excel\Collections\RowCollection */
+		foreach ($data as $local => $rowCollection)
 		{
+			if (is_numeric($local))
+			{
+				$local = $rowCollection->getTitle();
+			}
+
 			if ($local == self::INFO_SHEET)
 			{
 				continue;
@@ -44,7 +50,7 @@ abstract class ImportAbstract implements ImportInterface
 
 			\Log::info('Translation import: processing ' . $local);
 
-			$export = $this->processSheet($sheet, $languages);
+			$export = $this->processSheet($rowCollection, $languages);
 			$this->exportSheetsToDestination($dir, $export, $local);
 
 			\Log::info('Translation import: done');
@@ -78,6 +84,10 @@ abstract class ImportAbstract implements ImportInterface
 			$array = array();
 			foreach ($data as $key => $value)
 			{
+				if (empty($value) || $value == 'null')
+				{
+					continue;
+				}
 				// convert dot notation in real array
 				array_set($array, $key, $value);
 			}
