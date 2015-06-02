@@ -33,7 +33,7 @@ class ExportSymfonyYaml extends ExportAbstract
 			{
 				if (!isset($data[ $k ]))
 				{
-					$data[ $k ] = $this->_emptyLine($k, 'N/A', $languages);
+					$data[ $k ] = $this->_emptyLine($k, self::REF_NO_VALUE, $languages);
 				}
 
 				$data[ $k ][ $lang ] = $v;

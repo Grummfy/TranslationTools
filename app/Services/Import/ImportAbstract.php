@@ -2,6 +2,8 @@
 
 namespace App\Services\Import;
 
+use App\Services\Export\ExportInterface;
+
 abstract class ImportAbstract implements ImportInterface
 {
 	public function loadFile($file, $dir, array $languages = null, $sheetName = null)
@@ -67,7 +69,13 @@ abstract class ImportAbstract implements ImportInterface
 		{
 			foreach ($languages as $lang)
 			{
-				$export[ $lang ][ $row[ 'key' ] ] = $row[ $lang ];
+				// skip
+				if (!$this->_isValueReferenceOK($row, $lang))
+				{
+					continue;
+				}
+
+				$export[ $lang ][ $row[ 'key' ] ] = ($this->_isValueOK($row, $lang)) ? $row[ $lang ] : $row[ ExportInterface::REF_LANGUAGE ];
 			}
 		}
 
@@ -84,10 +92,6 @@ abstract class ImportAbstract implements ImportInterface
 			$array = array();
 			foreach ($data as $key => $value)
 			{
-				if (empty($value) || $value == 'null')
-				{
-					continue;
-				}
 				// convert dot notation in real array
 				array_set($array, $key, $value);
 			}
@@ -95,5 +99,15 @@ abstract class ImportAbstract implements ImportInterface
 			// export it
 			$this->exportSheetToDestination($dir, $lang, $local, $data);
 		}
+	}
+
+	protected function _isValueReferenceOK($row, $lang)
+	{
+		return $row[ ExportInterface::REF_LANGUAGE ] != ExportInterface::REF_NO_VALUE;
+	}
+
+	protected function _isValueOK($row, $lang)
+	{
+		return !empty($row[ $lang ]);
 	}
 }

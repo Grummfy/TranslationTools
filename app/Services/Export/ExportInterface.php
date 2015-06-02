@@ -4,6 +4,9 @@ namespace App\Services\Export;
 
 interface ExportInterface
 {
+	const REF_LANGUAGE = '__ref_';
+	const REF_NO_VALUE = 'N/A';
+
 	/**
 	 * Get the array of all translation types
 	 * @param string $containerDirectory

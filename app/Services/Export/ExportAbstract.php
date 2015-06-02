@@ -52,8 +52,8 @@ abstract class ExportAbstract implements ExportInterface
 	protected function _emptyLine($key, $ref, $langs)
 	{
 		$t = [
-			'key' => $key,
-			'ref' => $ref,
+			'key'               => $key,
+			self::REF_LANGUAGE  => $ref,
 		];
 
 		foreach ($langs as $lang)
