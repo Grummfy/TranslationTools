@@ -4,7 +4,7 @@ namespace App\Services\Export;
 
 interface ExportInterface
 {
-	const REF_LANGUAGE = '__ref_';
+	const REF_LANGUAGE = 'ref';
 	const REF_NO_VALUE = 'N/A';
 
 	/**
