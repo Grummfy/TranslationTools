@@ -9,6 +9,13 @@ class ImportLaravel extends ImportAbstract
 		$path = $dir . '/' . $lang . '/' . $local . '.php';
 		@mkdir(pathinfo($path, PATHINFO_DIRNAME));
 
-		file_put_contents($path, '<?php' . PHP_EOL . PHP_EOL . 'return ' . var_export($data, true) . ';' . PHP_EOL);
+		// invert array_dot
+		$array = array();
+		foreach ($data as $key => $value)
+		{
+			array_set($array, $key, $value);
+		}
+
+		file_put_contents($path, '<?php' . PHP_EOL . PHP_EOL . 'return ' . var_export($array, true) . ';' . PHP_EOL);
 	}
 }
